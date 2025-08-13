@@ -1,0 +1,920 @@
+[
+    {
+        "id": "f1f1383da1f33bfc",
+        "type": "tab",
+        "label": "ETC Optimized",
+        "disabled": false,
+        "info": "Flow tối ưu cho hệ thống giám sát, nhận diện biển số qua ESP32-CAM"
+    },
+    {
+        "id": "5098c24fcd04d324",
+        "type": "mqtt in",
+        "z": "f1f1383da1f33bfc",
+        "name": "Vehicle Detect",
+        "topic": "vehicle/detect",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "mqtt-broker-config",
+        "nl": false,
+        "rap": false,
+        "inputs": 0,
+        "x": 110,
+        "y": 100,
+        "wires": [
+            [
+                "774e8e133e61bab2",
+                "1539c1b96d98b58a"
+            ]
+        ]
+    },
+    {
+        "id": "774e8e133e61bab2",
+        "type": "mqtt out",
+        "z": "f1f1383da1f33bfc",
+        "name": "Trigger Camera",
+        "topic": "cam/capture",
+        "qos": "2",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt-broker-config",
+        "x": 480,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "8e6baf9bb4cdaaea",
+        "type": "aedes broker",
+        "z": "f1f1383da1f33bfc",
+        "name": "",
+        "mqtt_port": 1883,
+        "mqtt_ws_bind": "port",
+        "mqtt_ws_port": null,
+        "mqtt_ws_path": "",
+        "cert": "",
+        "key": "",
+        "certname": "",
+        "keyname": "",
+        "persistence_bind": "memory",
+        "dburl": "",
+        "usetls": false,
+        "x": 730,
+        "y": 100,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "3430db83ab03740c",
+        "type": "http in",
+        "z": "f1f1383da1f33bfc",
+        "name": "pass plate",
+        "url": "/open_gate",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 80,
+        "y": 340,
+        "wires": [
+            [
+                "ebddc64602505b3a"
+            ]
+        ]
+    },
+    {
+        "id": "ebddc64602505b3a",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Send Open to Esp32",
+        "func": "let plate = msg.payload.plate_number || \"UNKNOWN\";\nnode.log(\" Mở thanh chắn cho xe: \" + plate);\n\nmsg.topic = \"to-Esp32\";\nmsg.payload = JSON.stringify({\n    command: \"OPEN\",\n    plate_number: plate,\n});\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 260,
+        "y": 340,
+        "wires": [
+            [
+                "4039e4d3d7923929",
+                "09127e2e373f7edc",
+                "ed64d048a3394b4d"
+            ]
+        ]
+    },
+    {
+        "id": "4039e4d3d7923929",
+        "type": "mqtt out",
+        "z": "f1f1383da1f33bfc",
+        "name": "send to ESP32",
+        "topic": "to-Esp32",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt-broker-config",
+        "x": 760,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "09127e2e373f7edc",
+        "type": "debug",
+        "z": "f1f1383da1f33bfc",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "c00a11481e42716c",
+        "type": "mysql",
+        "z": "f1f1383da1f33bfc",
+        "mydb": "4cb05dbbe1d69729",
+        "name": "MySQL TramThuPhi",
+        "x": 700,
+        "y": 560,
+        "wires": [
+            [
+                "15ed45359717524a",
+                "d6019c7ffbb78e59"
+            ]
+        ]
+    },
+    {
+        "id": "15ed45359717524a",
+        "type": "debug",
+        "z": "f1f1383da1f33bfc",
+        "name": "Kết quả",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "a7b87c36f2f59f24",
+        "type": "ui_form",
+        "z": "f1f1383da1f33bfc",
+        "name": "Form nạp tiền",
+        "label": "🔁 NẠP TIỀN CHO XE",
+        "group": "94859089e9f16a49",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Biển số",
+                "value": "plate_number",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Số tiền nạp (VND)",
+                "value": "amount",
+                "type": "number",
+                "required": true,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "plate_number": "",
+            "amount": ""
+        },
+        "payload": "",
+        "submit": "Nạp tiền",
+        "cancel": "Hủy",
+        "topic": "",
+        "topicType": "str",
+        "splitLayout": false,
+        "className": "",
+        "x": 120,
+        "y": 480,
+        "wires": [
+            [
+                "3910bfc44f156942"
+            ]
+        ]
+    },
+    {
+        "id": "3910bfc44f156942",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Tạo câu lệnh SQL",
+        "func": "\nif (!msg.payload || !msg.payload.plate_number || !msg.payload.amount) {\n    node.error(\"Thiếu dữ liệu: plate_number hoặc amount\", msg);\n    return null;\n}\n\nlet plate = msg.payload.plate_number.toUpperCase().trim();\nlet amount = parseInt(msg.payload.amount);\n\nif (isNaN(amount) || amount <= 0) {\n    node.error(\"Số tiền không hợp lệ\", msg);\n    return null;\n}\n\nmsg.topic = `\n    UPDATE vehicles \n    SET balance = balance + ${amount} \n    WHERE plate_number = '${plate}'\n`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 500,
+        "wires": [
+            [
+                "c00a11481e42716c"
+            ]
+        ]
+    },
+    {
+        "id": "d6019c7ffbb78e59",
+        "type": "ui_toast",
+        "z": "f1f1383da1f33bfc",
+        "position": "top right",
+        "displayTime": "5",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "topic": "✅ Thành công",
+        "name": "Thông báo",
+        "x": 930,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "e1b2a3c4d5e6f7g8",
+        "type": "ui_form",
+        "z": "f1f1383da1f33bfc",
+        "name": "Đăng ký xe mới",
+        "label": "Thêm xe vào hệ thống",
+        "group": "1e41797c2a56aeb4",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Biển số",
+                "value": "plate",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Chủ xe",
+                "value": "owner",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Loại xe",
+                "value": "type",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Số dư",
+                "value": "balance",
+                "type": "number",
+                "required": true,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "plate": "",
+            "owner": "",
+            "type": "",
+            "balance": ""
+        },
+        "payload": "",
+        "submit": "Đăng ký",
+        "cancel": "Hủy",
+        "topic": "",
+        "topicType": "str",
+        "splitLayout": false,
+        "className": "",
+        "x": 160,
+        "y": 580,
+        "wires": [
+            [
+                "e4f5g6h7i8j9k0l1"
+            ]
+        ]
+    },
+    {
+        "id": "e4f5g6h7i8j9k0l1",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Tạo SQL",
+        "func": "let plate = msg.payload.plate.toUpperCase();\nlet owner = msg.payload.owner;\nlet type = msg.payload.type;\nlet balance = parseInt(msg.payload.balance);\n\nmsg.topic = `\nINSERT INTO vehicles (plate_number, owner_name, vehicle_type, balance)\nVALUES ('${plate}', '${owner}', '${type}', ${balance})\nON DUPLICATE KEY UPDATE owner_name='${owner}', vehicle_type='${type}', balance=${balance};`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 580,
+        "wires": [
+            [
+                "c00a11481e42716c"
+            ]
+        ]
+    },
+    {
+        "id": "1539c1b96d98b58a",
+        "type": "debug",
+        "z": "f1f1383da1f33bfc",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 300,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "2263ff927132d20e",
+        "type": "http response",
+        "z": "f1f1383da1f33bfc",
+        "name": "respone về python",
+        "statusCode": "200",
+        "headers": {},
+        "x": 730,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "ed64d048a3394b4d",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Respone to python",
+        "func": "msg.payload = { status: \"OK\", message: \"Cổng đã mở\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 420,
+        "wires": [
+            [
+                "2263ff927132d20e"
+            ]
+        ]
+    },
+    {
+        "id": "c77403afd44d5b51",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Send Status plate",
+        "func": "const plate = (msg.payload && msg.payload.plate) ? msg.payload.plate : \"N/A\";\nconst status = (msg.payload && msg.payload.status) ? msg.payload.status : \"unknown\";\nconst message = (msg.payload && msg.payload.message) ? msg.payload.message : \"Không rõ\";\nconst fee=(msg.payload && msg.payload.fee)?msg.payload.fee:\"0\";\n// let fee;\n// if (msg.payload && msg.payload.fee !== undefined && msg.payload.fee !== null) {\n//     fee = msg.payload.fee;\n// } else {\n//     fee = \"N/A\";\n// }\n\n\nmsg.payload = {\n    timestamp: new Date().toLocaleString('vi-VN'),\n    plate: plate,\n    fee: fee,\n    status: status,\n    message: message\n};\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 680,
+        "wires": [
+            [
+                "53712d90423a7c05",
+                "f3d9719d65a41031",
+                "4039e4d3d7923929"
+            ]
+        ]
+    },
+    {
+        "id": "53712d90423a7c05",
+        "type": "http response",
+        "z": "f1f1383da1f33bfc",
+        "name": "respone",
+        "statusCode": "200",
+        "headers": {},
+        "x": 660,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "1f137e85580b3adc",
+        "type": "ui_table",
+        "z": "f1f1383da1f33bfc",
+        "group": "a5db62dcc5941129",
+        "name": "",
+        "order": 0,
+        "width": "12",
+        "height": "7",
+        "columns": [
+            {
+                "field": "timestamp",
+                "title": "Time",
+                "width": "20%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "plate",
+                "title": "Plate",
+                "width": "20%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "fee",
+                "title": "Fee",
+                "width": "10%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "status",
+                "title": "Status",
+                "width": "20%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "message",
+                "title": "Mess",
+                "width": "30%",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 710,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "f3d9719d65a41031",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "form table",
+        "func": "let table = flow.get(\"uidTable\") || [];\ntable.unshift(msg.payload);\nif (table.length > 100) table.pop();\nflow.set(\"uidTable\", table);\nmsg.payload = table;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 720,
+        "wires": [
+            [
+                "1f137e85580b3adc"
+            ]
+        ]
+    },
+    {
+        "id": "f4d18296a49add1c",
+        "type": "ui_button",
+        "z": "f1f1383da1f33bfc",
+        "name": "",
+        "group": "1e41797c2a56aeb4",
+        "order": 1,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "label": "Servo 1",
+        "tooltip": "",
+        "color": "BLACK",
+        "bgcolor": "RED",
+        "className": "",
+        "icon": "fa-bars",
+        "payload": "SERVO",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 140,
+        "y": 740,
+        "wires": [
+            [
+                "888c5bf619ca5b3c",
+                "9f09d3c070053a2f"
+            ]
+        ]
+    },
+    {
+        "id": "888c5bf619ca5b3c",
+        "type": "mqtt out",
+        "z": "f1f1383da1f33bfc",
+        "name": "send to ESP32",
+        "topic": "to-Esp32",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt-broker-config",
+        "x": 420,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "9f09d3c070053a2f",
+        "type": "debug",
+        "z": "f1f1383da1f33bfc",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 420,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "7be5595c68dc2865",
+        "type": "ui_button",
+        "z": "f1f1383da1f33bfc",
+        "name": "",
+        "group": "94859089e9f16a49",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "chụp hình",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "PICTURE",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 100,
+        "y": 160,
+        "wires": [
+            [
+                "774e8e133e61bab2",
+                "91657cd01cc654c5"
+            ]
+        ]
+    },
+    {
+        "id": "1ec22d0bdec43456",
+        "type": "http in",
+        "z": "f1f1383da1f33bfc",
+        "name": "Upload Image",
+        "url": "/upload_image",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 280,
+        "wires": [
+            [
+                "7c019dd54336b16a"
+            ]
+        ]
+    },
+    {
+        "id": "7a86efb152c7fb8b",
+        "type": "debug",
+        "z": "f1f1383da1f33bfc",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "7c019dd54336b16a",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Chuẩn bị buffer gửi API",
+        "func": "\nif (Buffer.isBuffer(msg.payload)) {\n    msg.headers = { 'Content-Type': 'application/octet-stream' };\n    msg.method = 'POST';\n    msg.url = 'http://127.0.0.1:8000/process';\n} else {\n    node.error('Payload không phải buffer', msg);\n    return null;\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 280,
+        "wires": [
+            [
+                "81893e42d08258c7"
+            ]
+        ]
+    },
+    {
+        "id": "81893e42d08258c7",
+        "type": "http request",
+        "z": "f1f1383da1f33bfc",
+        "name": "Gửi ảnh sang FastAPI",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 280,
+        "wires": [
+            [
+                "7a86efb152c7fb8b",
+                "c77403afd44d5b51"
+            ]
+        ]
+    },
+    {
+        "id": "91657cd01cc654c5",
+        "type": "ui_toast",
+        "z": "f1f1383da1f33bfc",
+        "position": "top right",
+        "displayTime": "5",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "✅ Thành công",
+        "name": "Thông báo",
+        "x": 550,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "a1f88e6b8b3a7d5a",
+        "type": "mqtt in",
+        "z": "f1f1383da1f33bfc",
+        "name": "MQTT Receive Logs",
+        "topic": "toll/log",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt-broker-config",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 960,
+        "wires": [
+            [
+                "4d35eeb3e2b6d73b"
+            ]
+        ]
+    },
+    {
+        "id": "4d35eeb3e2b6d73b",
+        "type": "json",
+        "z": "f1f1383da1f33bfc",
+        "name": "Parse JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 340,
+        "y": 960,
+        "wires": [
+            [
+                "c02e59d6cb3ab239"
+            ]
+        ]
+    },
+    {
+        "id": "c02e59d6cb3ab239",
+        "type": "function",
+        "z": "f1f1383da1f33bfc",
+        "name": "Build SQL Query",
+        "func": "const plate = (msg.payload && msg.payload.plate) ? msg.payload.plate : \"N/A\";\nlet method = msg.payload.method || 'unknown';\nlet fee = msg.payload.fee || '0';\n\n// Nội dung log ghép từ biển số + phương thức + phí\nlet content = `Plate: ${plate}, Method: ${method}, Fee: ${fee}`;\n\nmsg.topic = `INSERT INTO logs (source, content) VALUES ('ESP32', '${content}')`;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 960,
+        "wires": [
+            [
+                "cbd99b2b7cb713f1",
+                "fac69e73f25de68a"
+            ]
+        ]
+    },
+    {
+        "id": "cbd99b2b7cb713f1",
+        "type": "mysql",
+        "z": "f1f1383da1f33bfc",
+        "mydb": "4cb05dbbe1d69729",
+        "name": "MySQL Insert Logs",
+        "x": 790,
+        "y": 960,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fac69e73f25de68a",
+        "type": "debug",
+        "z": "f1f1383da1f33bfc",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "e15d890c9f19debd",
+        "type": "ui_button",
+        "z": "f1f1383da1f33bfc",
+        "name": "",
+        "group": "1e41797c2a56aeb4",
+        "order": 1,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "label": "Servo 2",
+        "tooltip": "",
+        "color": "BLACK",
+        "bgcolor": "GREEN",
+        "className": "",
+        "icon": "fa-bars",
+        "payload": "SERVO2",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 140,
+        "y": 780,
+        "wires": [
+            [
+                "888c5bf619ca5b3c",
+                "9f09d3c070053a2f"
+            ]
+        ]
+    },
+    {
+        "id": "08fd0850a6b3e561",
+        "type": "ui_button",
+        "z": "f1f1383da1f33bfc",
+        "name": "",
+        "group": "1e41797c2a56aeb4",
+        "order": 1,
+        "width": "3",
+        "height": "1",
+        "passthru": false,
+        "label": "Close servo",
+        "tooltip": "",
+        "color": "BLACK",
+        "bgcolor": "YELLOW",
+        "className": "",
+        "icon": "fa-bars",
+        "payload": "CLOSESV",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 150,
+        "y": 820,
+        "wires": [
+            [
+                "888c5bf619ca5b3c",
+                "9f09d3c070053a2f"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt-broker-config",
+        "type": "mqtt-broker",
+        "name": "MQTT Server",
+        "broker": "10.0.18.184",
+        "port": "1883",
+        "clientid": "NodeRED",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "4cb05dbbe1d69729",
+        "type": "MySQLdatabase",
+        "name": "MySQL TramThuPhi",
+        "host": "localhost",
+        "port": "3306",
+        "db": "TramThuPhi",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "94859089e9f16a49",
+        "type": "ui_group",
+        "name": "Nạp tiền ảo",
+        "tab": "cd19e9a2c11d8ba2",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1e41797c2a56aeb4",
+        "type": "ui_group",
+        "name": "Đăng kí xe",
+        "tab": "cd19e9a2c11d8ba2",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "a5db62dcc5941129",
+        "type": "ui_group",
+        "name": "Danh sách xe ",
+        "tab": "cd19e9a2c11d8ba2",
+        "order": 3,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "cd19e9a2c11d8ba2",
+        "type": "ui_tab",
+        "name": "Quản lý trạm thu phí",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
